@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const {
   parseSubjectId,
+  corsImageUrl,
   calculateRating,
   scoreDescription,
 } = require('../logic.js');
@@ -9,6 +10,13 @@ assert.equal(parseSubjectId('12'), 12);
 assert.equal(parseSubjectId('https://bgm.tv/subject/12345'), 12345);
 assert.equal(parseSubjectId('https://bangumi.tv/subject/42?from=test'), 42);
 assert.equal(parseSubjectId('nonsense'), null);
+
+assert.equal(
+  corsImageUrl('https://lain.bgm.tv/pic/cover/l/aa/bb/test.jpg'),
+  'https://wsrv.nl/?url=https%3A%2F%2Flain.bgm.tv%2Fpic%2Fcover%2Fl%2Faa%2Fbb%2Ftest.jpg',
+);
+assert.equal(corsImageUrl(''), '');
+assert.equal(corsImageUrl('data:image/png;base64,abc'), 'data:image/png;base64,abc');
 
 const rating = calculateRating({1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1, 7: 2, 8: 3, 9: 0, 10: 0});
 assert.equal(rating.total, 6);
