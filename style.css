@@ -1,4 +1,5 @@
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; min-height: 100%; }
 body {
   background: #f7f7f7;
@@ -8,12 +9,12 @@ body {
 button, input { font: inherit; }
 button { cursor: pointer; }
 
-.page-shell { width: min(1180px, calc(100% - 32px)); margin: 26px auto 48px; }
+.page-shell { width: min(1240px, calc(100% - 32px)); margin: 26px auto 48px; }
 .tool-header { margin-bottom: 18px; padding: 0 4px 14px; border-bottom: 1px solid #ddd; }
 .tool-header h1 { margin: 0; color: #444; font-size: 24px; font-weight: 400; }
 .tool-header p { margin: 4px 0 0; color: #999; }
 
-.workspace { display: grid; grid-template-columns: minmax(360px, 440px) 1fr; gap: 26px; align-items: start; }
+.workspace { display: grid; grid-template-columns: minmax(500px, 520px) minmax(620px, 1fr); gap: 26px; align-items: start; }
 .editor-column, .preview-column { min-width: 0; }
 .editor-section { margin-bottom: 16px; padding: 16px 18px 18px; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
 .editor-section h2, .preview-heading h2 { margin: 0; color: #555; font-size: 16px; font-weight: 700; }
@@ -66,18 +67,20 @@ button { cursor: pointer; }
 .rating-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 13px; }
 .rank-toggle { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: #777; font-size: 12px; user-select: none; }
 .rank-toggle input { accent-color: #e800a4; }
-.score-input-grid { display: grid; grid-template-columns: repeat(5, minmax(58px, 1fr)); gap: 8px; }
-.score-input-item { display: grid; grid-template-columns: 23px 1fr; align-items: center; gap: 4px; }
+.score-input-grid { display: grid; grid-template-columns: repeat(5, minmax(82px, 1fr)); gap: 8px; }
+.score-input-item { display: grid; grid-template-columns: 22px minmax(60px, 1fr); align-items: center; gap: 5px; min-width: 0; }
 .score-input-item label { color: #777; font-weight: 700; text-align: right; }
 .score-count-input {
   width: 100%;
-  height: 28px;
+  min-width: 60px;
+  height: 30px;
   padding: 3px 5px;
   border: 1px solid #ccc;
   border-radius: 2px;
   outline: none;
   color: #555;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .rating-summary { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; color: #888; font-size: 12px; }
 .rating-summary strong { color: #e800a4; font-size: 14px; }
@@ -122,13 +125,13 @@ small.alarm { padding-left: 3px; color: #c00; font-weight: 700; }
 .horizontalChart .count { position: absolute; bottom: 0; left: 0; display: block; width: 100%; overflow: hidden; border-radius: 2px 2px 0 0; background: #aaa; color: transparent; }
 .horizontalChart .label { position: absolute; bottom: -24px; left: 0; display: block; width: 100%; height: 24px; color: #555; line-height: 24px; text-align: center; }
 
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   .workspace { grid-template-columns: 1fr; }
   .preview-column { order: 2; }
 }
-@media (max-width: 520px) {
-  .page-shell { width: min(100% - 18px, 1180px); margin-top: 12px; }
+@media (max-width: 560px) {
+  .page-shell { width: min(100% - 18px, 1240px); margin-top: 12px; }
   .subject-loader { flex-direction: column; }
-  .score-input-grid { grid-template-columns: repeat(2, 1fr); }
+  .score-input-grid { grid-template-columns: repeat(2, minmax(100px, 1fr)); }
   .rank-toggle { width: 100%; margin-left: 0; }
 }
