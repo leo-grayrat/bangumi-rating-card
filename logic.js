@@ -10,6 +10,12 @@
     return match ? Number(match[1]) : null;
   }
 
+  function corsImageUrl(url) {
+    const value = String(url || '').trim();
+    if (!value || /^(?:data|blob):/i.test(value)) return value;
+    return `https://wsrv.nl/?url=${encodeURIComponent(value)}`;
+  }
+
   function normalizeCounts(input) {
     const counts = {};
     for (let score = 1; score <= 10; score += 1) {
@@ -60,5 +66,5 @@
     return `score${Math.max(1, Math.min(10, Math.floor(Number(score))))}`;
   }
 
-  return { parseSubjectId, normalizeCounts, calculateRating, scoreDescription, scoreClass };
+  return { parseSubjectId, corsImageUrl, normalizeCounts, calculateRating, scoreDescription, scoreClass };
 });
