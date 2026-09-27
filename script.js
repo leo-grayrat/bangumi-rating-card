@@ -231,7 +231,12 @@
     setText(el.cardMeta, meta.join(' / '));
 
     setCover(el.editorCover, el.editorCoverPlaceholder, subject.cover);
-    setCover(el.cardCover, el.cardCoverPlaceholder, subject.cover);
+    setCover(
+      el.cardCover,
+      el.cardCoverPlaceholder,
+      Logic.corsImageUrl(subject.cover),
+      subject.cover,
+    );
     el.openSubjectLink.href = `https://bgm.tv/subject/${subject.id}`;
     el.openSubjectLink.classList.remove('disabled-link');
   }
@@ -276,16 +281,41 @@
     el.horizontalChart.append(fragment);
   }
 
-  function setCover(image, placeholder, src) {
-    if (src) {
-      image.src = src;
-      image.hidden = false;
-      placeholder.hidden = true;
-    } else {
+  function setCover(image, placeholder, src, fallbackSrc = '') {
+    image.onload = null;
+    image.onerror = null;
+
+    if (!src) {
       image.removeAttribute('src');
+      image.removeAttribute('crossorigin');
       image.hidden = true;
       placeholder.hidden = false;
+      return;
     }
+
+    let fallbackUsed = false;
+    const useCors = Boolean(fallbackSrc && fallbackSrc !== src);
+    if (useCors) image.crossOrigin = 'anonymous';
+    else image.removeAttribute('crossorigin');
+
+    image.onload = () => {
+      image.hidden = false;
+      placeholder.hidden = true;
+    };
+    image.onerror = () => {
+      if (!fallbackUsed && fallbackSrc && fallbackSrc !== src) {
+        fallbackUsed = true;
+        image.removeAttribute('crossorigin');
+        image.src = fallbackSrc;
+        return;
+      }
+      image.hidden = true;
+      placeholder.hidden = false;
+    };
+
+    image.src = src;
+    image.hidden = false;
+    placeholder.hidden = true;
   }
 
   function setText(node, value) {
