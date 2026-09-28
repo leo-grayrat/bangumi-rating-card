@@ -28,7 +28,7 @@
     if (value < 1.45) return '莫衷一是';
     if (value < 1.60) return '各执一词';
     if (value < 1.75) return '你死我活';
-    return '厨大战黑';
+    return '厨黑大战';
   }
 
   function calculateRating(input) {
