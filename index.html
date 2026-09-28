@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bangumi 评分卡</title>
   <link rel="icon" href="https://bgm.tv/img/favicon.ico">
-  <link rel="stylesheet" href="style.css?v=20260928-4">
+  <link rel="stylesheet" href="style.css?v=20260928-7">
 </head>
 <body>
   <div class="page-shell">
@@ -84,53 +84,55 @@
       <section class="preview-column" aria-label="评分卡预览">
         <div class="preview-heading">
           <h2>预览</h2>
-          <span>条目信息沿用旧卡；评分区按参考图调整</span>
+          <span>封面与右侧信息同高展示</span>
         </div>
         <div class="preview-frame">
           <main id="capture">
-            <header id="headerSubject">
-              <h1 id="cardTitle">请先载入 Bangumi 条目</h1>
-              <div id="cardMeta" class="meta"></div>
-            </header>
-
-            <div class="subject-columns">
+            <div class="card-layout">
               <div class="cover-slot">
                 <img id="cardCover" alt="" hidden>
                 <div id="cardCoverPlaceholder" class="cover-placeholder">NO IMAGE</div>
               </div>
 
-              <section class="SidePanel">
-                <h2>收藏盒</h2>
+              <div class="card-main">
+                <header id="headerSubject">
+                  <h1 id="cardTitle">请先载入 Bangumi 条目</h1>
+                  <div id="cardMeta" class="meta"></div>
+                </header>
 
-                <div id="globalRating" class="global_rating score1">
-                  <div class="rateEmo"></div>
-                  <div class="score-lines">
-                    <div class="score-line">
-                      <span id="cardCustomLabel" class="score-label">???评分</span>
-                      <span id="cardCustomScore" class="score-value">--</span>
-                      <span id="cardCustomDescription" class="score-description"></span>
-                    </div>
-                    <div class="score-line bgm-score-line">
-                      <span class="score-label">BGM评分</span>
-                      <span id="cardBgmScore" class="score-value bgm-score">--</span>
-                      <span id="cardBgmDescription" class="score-description"></span>
-                    </div>
-                    <div id="cardRanking" class="card-ranking" hidden>
-                      <small class="grey">Bangumi Anime Ranked:</small><small id="cardRankText" class="alarm">#--</small>
+                <section class="SidePanel">
+                  <h2>收藏盒</h2>
+
+                  <div id="globalRating" class="global_rating score1">
+                    <div class="rateEmo"></div>
+                    <div class="score-lines">
+                      <div class="score-line">
+                        <span id="cardCustomLabel" class="score-label">???评分</span>
+                        <span id="cardCustomScore" class="score-value">--</span>
+                        <span id="cardCustomDescription" class="score-description"></span>
+                      </div>
+                      <div class="score-line bgm-score-line">
+                        <span class="score-label">BGM评分</span>
+                        <span id="cardBgmScore" class="score-value bgm-score">--</span>
+                        <span id="cardBgmDescription" class="score-description"></span>
+                      </div>
+                      <div id="cardRanking" class="card-ranking" hidden>
+                        <small class="grey">Bangumi Anime Ranked:</small><small id="cardRankText" class="alarm">#--</small>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div id="ChartWarpper" class="chartWrapper">
-                  <div class="chart_desc"><small class="grey"><span id="cardVotes">0</span> votes</small></div>
-                  <ul id="horizontalChart" class="horizontalChart"></ul>
-                </div>
+                  <div id="ChartWarpper" class="chartWrapper">
+                    <div class="chart_desc"><small class="grey"><span id="cardVotes">0</span> votes</small></div>
+                    <ul id="horizontalChart" class="horizontalChart"></ul>
+                  </div>
 
-                <div class="stats-line">
-                  <span>标准差：<strong id="cardStdDev">--</strong></span>
-                  <span>争议度：<strong id="cardControversy">--</strong></span>
-                </div>
-              </section>
+                  <div class="stats-line">
+                    <span>标准差：<strong id="cardStdDev">--</strong></span>
+                    <span>争议度：<strong id="cardControversy">--</strong></span>
+                  </div>
+                </section>
+              </div>
             </div>
           </main>
         </div>
