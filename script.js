@@ -146,14 +146,14 @@
   }
 
   function normalizeSubject(data) {
-    const bgmScore = Number(data.rating?.score);
+    const officialRating = Logic.calculateRating(data.rating?.count || {});
     return {
       id: Number(data.id),
       title: String(data.name_cn || data.name || `Subject ${data.id}`),
       date: String(data.date || ''),
       eps: Number(data.eps || data.eps_count || 0),
       cover: data.images?.large || data.images?.common || data.images?.medium || data.images?.grid || '',
-      bgmScore: Number.isFinite(bgmScore) && bgmScore > 0 ? bgmScore : null,
+      bgmScore: officialRating.score,
       rank: Number(data.rating?.rank || 0) || null,
     };
   }
