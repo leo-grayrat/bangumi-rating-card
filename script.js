@@ -138,9 +138,6 @@
       renderSubject();
       renderRating();
       setStatus(el.loadStatus, `已载入 ${state.subject.title}`, 'success');
-
-      // 页面先用 Bangumi 原图直连，确保预览立即可见；
-      // 后台再尝试转成 data URL，成功后用于导出 PNG。
       void upgradeCardCoverForExport(state.subject.id);
     } catch (error) {
       setStatus(el.loadStatus, error instanceof Error ? error.message : '载入失败。', 'error');
@@ -159,7 +156,36 @@
       cover: data.images?.large || data.images?.common || data.images?.medium || data.images?.grid || '',
       bgmScore: officialRating.score,
       rank: Number(data.rating?.rank || 0) || null,
+      director: getInfoboxText(data.infobox, ['导演', '监督', '監督']),
+      original: getInfoboxText(data.infobox, ['原作']),
+      characterDesign: getInfoboxText(data.infobox, ['人物设定', '人物設定', '角色设定', '角色設定']),
     };
+  }
+
+  function getInfoboxText(infobox, keys) {
+    if (!Array.isArray(infobox)) return '';
+    const wanted = new Set(keys);
+    const item = infobox.find((entry) => wanted.has(String(entry?.key || '').trim()));
+    return infoboxValueToText(item?.value);
+  }
+
+  function infoboxValueToText(value) {
+    if (typeof value === 'string') return value.trim();
+    if (!Array.isArray(value)) return '';
+    return value
+      .map((entry) => {
+        if (typeof entry === 'string') return entry.trim();
+        return String(entry?.v || '').trim();
+      })
+      .filter(Boolean)
+      .join('、');
+  }
+
+  function formatSearchDate(value) {
+    const text = String(value || '').trim();
+    const match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!match) return text;
+    return `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`;
   }
 
   async function upgradeCardCoverForExport(subjectId) {
@@ -172,7 +198,7 @@
       if (state.subject?.id !== subjectId || !dataUrl) return;
       setCover(el.cardCover, el.cardCoverPlaceholder, dataUrl);
     } catch (_) {
-      // 转换失败只影响导出优化，预览继续保留 Bangumi 原图。
+      // 只影响导出优化；预览仍使用 Bangumi 原图。
     }
   }
 
@@ -251,10 +277,12 @@
     setText(el.cardBgmScore, bgmScoreText);
     setText(el.cardBgmDescription, Logic.scoreDescription(subject.bgmScore));
 
-    const meta = [];
-    if (subject.date) meta.push(subject.date);
-    if (subject.eps) meta.push(`${subject.eps}话`);
-    meta.push(`ID ${subject.id}`);
+    const meta = [
+      formatSearchDate(subject.date),
+      subject.director,
+      subject.original,
+      subject.characterDesign,
+    ].filter(Boolean);
     setText(el.cardMeta, meta.join(' / '));
 
     setCover(el.editorCover, el.editorCoverPlaceholder, subject.cover);
