@@ -10,12 +10,6 @@
     return match ? Number(match[1]) : null;
   }
 
-  function corsImageUrl(url) {
-    const value = String(url || '').trim();
-    if (!value || /^(?:data|blob):/i.test(value)) return value;
-    return `https://wsrv.nl/?url=${encodeURIComponent(value)}`;
-  }
-
   function normalizeCounts(input) {
     const counts = {};
     for (let score = 1; score <= 10; score += 1) {
@@ -25,27 +19,54 @@
     return counts;
   }
 
+  function controversyLabel(stdDev) {
+    if (stdDev == null || !Number.isFinite(Number(stdDev))) return '';
+    const value = Number(stdDev);
+    if (value < 1.00) return '异口同声';
+    if (value < 1.15) return '基本一致';
+    if (value < 1.30) return '略有分歧';
+    if (value < 1.45) return '莫衷一是';
+    if (value < 1.60) return '各执一词';
+    if (value < 1.75) return '你死我活';
+    return '厨大战黑';
+  }
+
   function calculateRating(input) {
     const counts = normalizeCounts(input);
     let total = 0;
     let weighted = 0;
     let maxCount = 0;
+
     for (let score = 1; score <= 10; score += 1) {
       const count = counts[score];
       total += count;
       weighted += score * count;
       maxCount = Math.max(maxCount, count);
     }
-    const bars = [];
-    for (let score = 10; score >= 1; score -= 1) {
-      const count = counts[score];
-      const rawHeight = maxCount ? Math.round((92 * count) / maxCount) : 0;
-      bars.push({ score, count, height: count ? Math.max(1, rawHeight) : 0 });
+
+    const score = total ? weighted / total : null;
+    let stdDev = null;
+    if (score != null) {
+      let squaredDistanceSum = 0;
+      for (let value = 1; value <= 10; value += 1) {
+        squaredDistanceSum += ((value - score) ** 2) * counts[value];
+      }
+      stdDev = Math.sqrt(squaredDistanceSum / total);
     }
+
+    const bars = [];
+    for (let scoreValue = 10; scoreValue >= 1; scoreValue -= 1) {
+      const count = counts[scoreValue];
+      const rawHeight = maxCount ? Math.round((92 * count) / maxCount) : 0;
+      bars.push({ score: scoreValue, count, height: count ? Math.max(1, rawHeight) : 0 });
+    }
+
     return {
       counts,
       total,
-      score: total ? weighted / total : null,
+      score,
+      stdDev,
+      controversy: controversyLabel(stdDev),
       bars,
     };
   }
@@ -66,5 +87,12 @@
     return `score${Math.max(1, Math.min(10, Math.floor(Number(score))))}`;
   }
 
-  return { parseSubjectId, corsImageUrl, normalizeCounts, calculateRating, scoreDescription, scoreClass };
+  return {
+    parseSubjectId,
+    normalizeCounts,
+    controversyLabel,
+    calculateRating,
+    scoreDescription,
+    scoreClass,
+  };
 });
