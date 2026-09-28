@@ -10,6 +10,8 @@
     counts: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, 0])),
     showRank: false,
     customLabel: '',
+    exportCoverDataUrl: '',
+    exportCoverSubjectId: null,
   };
 
   const el = {
@@ -128,6 +130,8 @@
       state.bangumiCounts = Logic.normalizeCounts(data.rating?.count || {});
       state.counts = Logic.normalizeCounts({});
       state.showRank = false;
+      state.exportCoverDataUrl = '';
+      state.exportCoverSubjectId = null;
 
       el.subjectInput.value = String(state.subject.id);
       el.importRatingBtn.disabled = !data.rating?.count;
@@ -138,7 +142,7 @@
       renderSubject();
       renderRating();
       setStatus(el.loadStatus, `已载入 ${state.subject.title}`, 'success');
-      void upgradeCardCoverForExport(state.subject.id);
+      void ensureExportCoverDataUrl(state.subject);
     } catch (error) {
       setStatus(el.loadStatus, error instanceof Error ? error.message : '载入失败。', 'error');
     } finally {
@@ -188,26 +192,59 @@
     return `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`;
   }
 
-  async function upgradeCardCoverForExport(subjectId) {
-    try {
-      const response = await fetch(`${API_ROOT}/subjects/${subjectId}/image?type=large`);
-      if (!response.ok) return;
-      const blob = await response.blob();
-      if (!blob.type.startsWith('image/')) return;
-      const dataUrl = await blobToDataUrl(blob);
-      if (state.subject?.id !== subjectId || !dataUrl) return;
-      setCover(el.cardCover, el.cardCoverPlaceholder, dataUrl);
-    } catch (_) {
-      // 只影响导出优化；预览仍使用 Bangumi 原图。
+  async function ensureExportCoverDataUrl(subject) {
+    if (!subject?.cover) return '';
+    if (state.exportCoverSubjectId === subject.id && state.exportCoverDataUrl) {
+      return state.exportCoverDataUrl;
     }
+
+    const sources = [
+      `${API_ROOT}/subjects/${subject.id}/image?type=large`,
+      `https://wsrv.nl/?url=${encodeURIComponent(subject.cover)}`,
+    ];
+
+    for (const source of sources) {
+      try {
+        const dataUrl = await fetchImageAsDataUrl(source);
+        if (!dataUrl) continue;
+        if (state.subject?.id !== subject.id) return '';
+        state.exportCoverDataUrl = dataUrl;
+        state.exportCoverSubjectId = subject.id;
+        return dataUrl;
+      } catch (_) {
+        // 当前来源失败时继续尝试下一个来源。
+      }
+    }
+
+    return '';
+  }
+
+  async function fetchImageAsDataUrl(url) {
+    const response = await fetch(url, {
+      mode: 'cors',
+      cache: 'force-cache',
+    });
+    if (!response.ok) throw new Error(`图片请求失败：${response.status}`);
+    const blob = await response.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('返回内容不是图片');
+    return blobToDataUrl(blob);
   }
 
   function blobToDataUrl(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result || ''));
-      reader.onerror = () => reject(reader.error);
+      reader.onerror = () => reject(reader.error || new Error('图片转换失败'));
       reader.readAsDataURL(blob);
+    });
+  }
+
+  function waitForImageSource(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('封面解码失败'));
+      image.src = src;
     });
   }
 
@@ -388,19 +425,41 @@
       return;
     }
 
+    const subjectAtStart = state.subject;
     el.downloadBtn.disabled = true;
-    setStatus(el.exportStatus, '正在生成 PNG…');
+    setStatus(el.exportStatus, '正在准备封面并生成 PNG…');
+
     try {
       if (document.fonts?.ready) await document.fonts.ready;
+
+      const exportCoverDataUrl = await ensureExportCoverDataUrl(subjectAtStart);
+      if (state.subject?.id !== subjectAtStart.id) throw new Error('条目已发生变化，请重新导出。');
+      if (subjectAtStart.cover && !exportCoverDataUrl) {
+        throw new Error('封面无法转换成可导出的图片，请稍后重试。');
+      }
+      if (exportCoverDataUrl) await waitForImageSource(exportCoverDataUrl);
+
       const canvas = await window.html2canvas(el.capture, {
         backgroundColor: null,
         scale: 2,
         useCORS: true,
         allowTaint: false,
+        imageTimeout: 15000,
         logging: false,
+        onclone: (clonedDocument) => {
+          if (!exportCoverDataUrl) return;
+          const clonedCover = clonedDocument.querySelector('#cardCover');
+          const clonedPlaceholder = clonedDocument.querySelector('#cardCoverPlaceholder');
+          if (!clonedCover) return;
+          clonedCover.removeAttribute('crossorigin');
+          clonedCover.src = exportCoverDataUrl;
+          clonedCover.hidden = false;
+          if (clonedPlaceholder) clonedPlaceholder.hidden = true;
+        },
       });
+
       const link = document.createElement('a');
-      link.download = `bangumi-rating-${state.subject.id}.png`;
+      link.download = `bangumi-rating-${subjectAtStart.id}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       setStatus(el.exportStatus, 'PNG 已生成。', 'success');
