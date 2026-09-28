@@ -10,7 +10,6 @@
     counts: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, 0])),
     showRank: false,
     customLabel: '',
-    customScore: null,
   };
 
   const el = {
@@ -24,27 +23,33 @@
     infoDate: document.querySelector('#infoDate'),
     infoEps: document.querySelector('#infoEps'),
     infoId: document.querySelector('#infoId'),
+    infoBgmScore: document.querySelector('#infoBgmScore'),
+    infoBgmRank: document.querySelector('#infoBgmRank'),
     importRatingBtn: document.querySelector('#importRatingBtn'),
     clearRatingBtn: document.querySelector('#clearRatingBtn'),
     showRankInput: document.querySelector('#showRankInput'),
     scoreInputs: document.querySelector('#scoreInputs'),
     ratingModeText: document.querySelector('#ratingModeText'),
+    customLabelInput: document.querySelector('#customLabelInput'),
+    editorCustomLabel: document.querySelector('#editorCustomLabel'),
     editorScore: document.querySelector('#editorScore'),
     editorVotes: document.querySelector('#editorVotes'),
     editorStdDev: document.querySelector('#editorStdDev'),
     editorControversy: document.querySelector('#editorControversy'),
     editorRank: document.querySelector('#editorRank'),
-    customLabelInput: document.querySelector('#customLabelInput'),
-    customScoreInput: document.querySelector('#customScoreInput'),
     downloadBtn: document.querySelector('#downloadBtn'),
     openSubjectLink: document.querySelector('#openSubjectLink'),
     exportStatus: document.querySelector('#exportStatus'),
+    cardTitle: document.querySelector('#cardTitle'),
+    cardMeta: document.querySelector('#cardMeta'),
+    cardCover: document.querySelector('#cardCover'),
+    cardCoverPlaceholder: document.querySelector('#cardCoverPlaceholder'),
     globalRating: document.querySelector('#globalRating'),
-    customScoreLabel: document.querySelector('#customScoreLabel'),
-    customScoreValue: document.querySelector('#customScoreValue'),
-    customScoreDescription: document.querySelector('#customScoreDescription'),
-    cardScore: document.querySelector('#cardScore'),
-    cardDescription: document.querySelector('#cardDescription'),
+    cardCustomLabel: document.querySelector('#cardCustomLabel'),
+    cardCustomScore: document.querySelector('#cardCustomScore'),
+    cardCustomDescription: document.querySelector('#cardCustomDescription'),
+    cardBgmScore: document.querySelector('#cardBgmScore'),
+    cardBgmDescription: document.querySelector('#cardBgmDescription'),
     cardRanking: document.querySelector('#cardRanking'),
     cardRankText: document.querySelector('#cardRankText'),
     cardVotes: document.querySelector('#cardVotes'),
@@ -69,14 +74,7 @@
   });
   el.customLabelInput.addEventListener('input', () => {
     state.customLabel = el.customLabelInput.value.trim();
-    renderCustomRating();
-  });
-  el.customScoreInput.addEventListener('input', () => {
-    const value = Number(el.customScoreInput.value);
-    state.customScore = el.customScoreInput.value === '' || !Number.isFinite(value)
-      ? null
-      : Math.max(0, Math.min(10, value));
-    renderCustomRating();
+    renderCustomLabel();
   });
   el.downloadBtn.addEventListener('click', downloadCard);
 
@@ -132,10 +130,10 @@
       state.showRank = false;
 
       el.subjectInput.value = String(state.subject.id);
-      el.importRatingBtn.disabled = !data.rating;
+      el.importRatingBtn.disabled = !data.rating?.count;
       el.showRankInput.disabled = !state.subject.rank;
       el.showRankInput.checked = false;
-      el.ratingModeText.textContent = '未导入评分，可直接手填';
+      el.ratingModeText.textContent = '未导入分布，可直接手填';
 
       renderSubject();
       renderRating();
@@ -148,12 +146,14 @@
   }
 
   function normalizeSubject(data) {
+    const bgmScore = Number(data.rating?.score);
     return {
       id: Number(data.id),
       title: String(data.name_cn || data.name || `Subject ${data.id}`),
       date: String(data.date || ''),
       eps: Number(data.eps || data.eps_count || 0),
       cover: data.images?.large || data.images?.common || data.images?.medium || data.images?.grid || '',
+      bgmScore: Number.isFinite(bgmScore) && bgmScore > 0 ? bgmScore : null,
       rank: Number(data.rating?.rank || 0) || null,
     };
   }
@@ -163,7 +163,7 @@
     state.counts = Logic.normalizeCounts(state.bangumiCounts);
     state.showRank = Boolean(state.subject.rank);
     el.showRankInput.checked = state.showRank;
-    el.ratingModeText.textContent = 'Bangumi 评分已导入，可继续修改';
+    el.ratingModeText.textContent = '已导入 Bangumi 分布，可继续修改';
     syncCountInputs();
     renderRating();
   }
@@ -186,8 +186,8 @@
 
   function renderAll() {
     renderSubject();
+    renderCustomLabel();
     renderRating();
-    renderCustomRating();
   }
 
   function renderSubject() {
@@ -198,20 +198,53 @@
       setText(el.infoDate, '—');
       setText(el.infoEps, '—');
       setText(el.infoId, '—');
+      setText(el.infoBgmScore, '—');
+      setText(el.infoBgmRank, 'Rank —');
+      setText(el.cardTitle, '请先载入 Bangumi 条目');
+      setText(el.cardMeta, '');
+      setText(el.cardBgmScore, '--');
+      setText(el.cardBgmDescription, '');
       setCover(el.editorCover, el.editorCoverPlaceholder, '');
+      setCover(el.cardCover, el.cardCoverPlaceholder, '');
       el.openSubjectLink.classList.add('disabled-link');
       el.openSubjectLink.href = '#';
       return;
     }
+
+    const bgmScoreText = subject.bgmScore == null ? '--' : subject.bgmScore.toFixed(3);
 
     el.subjectInfo.classList.remove('is-empty');
     setText(el.infoTitle, subject.title);
     setText(el.infoDate, subject.date || '—');
     setText(el.infoEps, subject.eps ? `${subject.eps} 话` : '—');
     setText(el.infoId, String(subject.id));
+    setText(el.infoBgmScore, bgmScoreText);
+    setText(el.infoBgmRank, subject.rank ? `Rank #${subject.rank}` : 'Rank —');
+    setText(el.cardTitle, subject.title);
+    setText(el.cardBgmScore, bgmScoreText);
+    setText(el.cardBgmDescription, Logic.scoreDescription(subject.bgmScore));
+
+    const meta = [];
+    if (subject.date) meta.push(subject.date);
+    if (subject.eps) meta.push(`${subject.eps}话`);
+    meta.push(`ID ${subject.id}`);
+    setText(el.cardMeta, meta.join(' / '));
+
     setCover(el.editorCover, el.editorCoverPlaceholder, subject.cover);
+    setCover(
+      el.cardCover,
+      el.cardCoverPlaceholder,
+      Logic.corsImageUrl(subject.cover),
+      subject.cover,
+    );
     el.openSubjectLink.href = `https://bgm.tv/subject/${subject.id}`;
     el.openSubjectLink.classList.remove('disabled-link');
+  }
+
+  function renderCustomLabel() {
+    const text = `${state.customLabel || '???'}评分`;
+    setText(el.editorCustomLabel, text);
+    setText(el.cardCustomLabel, text);
   }
 
   function renderRating() {
@@ -225,8 +258,8 @@
     setText(el.editorVotes, String(rating.total));
     setText(el.editorStdDev, stdDevText);
     setText(el.editorControversy, controversy);
-    setText(el.cardScore, scoreText);
-    setText(el.cardDescription, description);
+    setText(el.cardCustomScore, scoreText);
+    setText(el.cardCustomDescription, description);
     setText(el.cardVotes, String(rating.total));
     setText(el.cardStdDev, stdDevText);
     setText(el.cardControversy, controversy);
@@ -260,24 +293,41 @@
     el.horizontalChart.append(fragment);
   }
 
-  function renderCustomRating() {
-    const label = state.customLabel ? `${state.customLabel}评分` : '???评分';
-    const scoreText = state.customScore == null ? '--' : state.customScore.toFixed(3);
-    setText(el.customScoreLabel, label);
-    setText(el.customScoreValue, scoreText);
-    setText(el.customScoreDescription, Logic.scoreDescription(state.customScore));
-  }
+  function setCover(image, placeholder, src, fallbackSrc = '') {
+    image.onload = null;
+    image.onerror = null;
 
-  function setCover(image, placeholder, src) {
-    if (src) {
-      image.src = src;
-      image.hidden = false;
-      placeholder.hidden = true;
-    } else {
+    if (!src) {
       image.removeAttribute('src');
+      image.removeAttribute('crossorigin');
       image.hidden = true;
       placeholder.hidden = false;
+      return;
     }
+
+    let fallbackUsed = false;
+    const useCors = Boolean(fallbackSrc && fallbackSrc !== src);
+    if (useCors) image.crossOrigin = 'anonymous';
+    else image.removeAttribute('crossorigin');
+
+    image.onload = () => {
+      image.hidden = false;
+      placeholder.hidden = true;
+    };
+    image.onerror = () => {
+      if (!fallbackUsed && fallbackSrc && fallbackSrc !== src) {
+        fallbackUsed = true;
+        image.removeAttribute('crossorigin');
+        image.src = fallbackSrc;
+        return;
+      }
+      image.hidden = true;
+      placeholder.hidden = false;
+    };
+
+    image.src = src;
+    image.hidden = false;
+    placeholder.hidden = true;
   }
 
   function setText(node, value) {
