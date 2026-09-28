@@ -12,5 +12,7 @@ assert.match(css, /\.card-layout\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*st
 assert.match(css, /\.cover-slot\s*\{[^}]*flex:\s*0\s+0\s+210px;/s);
 assert.match(css, /\.cover-slot img,\s*\.cover-placeholder\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;[^}]*object-fit:\s*contain;/s);
 assert.match(css, /\.card-main\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;/s);
+assert.doesNotMatch(html, /<h2>收藏盒<\/h2>/);
+assert.doesNotMatch(css, /\.SidePanel h2\s*\{/);
 
 console.log('layout tests passed');
