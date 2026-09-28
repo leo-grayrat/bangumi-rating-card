@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bangumi 评分卡</title>
   <link rel="icon" href="https://bgm.tv/img/favicon.ico">
-  <link rel="stylesheet" href="style.css?v=20260928-3">
+  <link rel="stylesheet" href="style.css?v=20260928-4">
 </head>
 <body>
   <div class="page-shell">
@@ -34,49 +34,40 @@
               <div><dt>日期</dt><dd id="infoDate">—</dd></div>
               <div><dt>话数</dt><dd id="infoEps">—</dd></div>
               <div><dt>ID</dt><dd id="infoId">—</dd></div>
+              <div><dt>BGM</dt><dd><span id="infoBgmScore">—</span> / <span id="infoBgmRank">Rank —</span></dd></div>
             </dl>
           </div>
         </section>
 
         <section class="editor-section">
           <div class="section-heading-row">
-            <h2>BGM 评分</h2>
+            <h2>自定义评分分布</h2>
             <span id="ratingModeText" class="section-note">等待条目</span>
           </div>
 
+          <div class="custom-name-row">
+            <label for="customLabelInput">评分名</label>
+            <input id="customLabelInput" class="text-input" type="text" maxlength="12" placeholder="留空显示 ???；可输入中文" autocomplete="off">
+            <span>评分</span>
+          </div>
+
           <div class="rating-actions">
-            <button id="importRatingBtn" class="bgm-button" type="button" disabled>导入 Bangumi 评分</button>
+            <button id="importRatingBtn" class="bgm-button" type="button" disabled>导入 Bangumi 分布</button>
             <button id="clearRatingBtn" class="bgm-button" type="button">清空，手动填写</button>
             <label class="rank-toggle" for="showRankInput">
               <input id="showRankInput" type="checkbox" disabled>
-              显示 Bangumi 排名
+              显示 BGM ranking
             </label>
           </div>
 
           <div id="scoreInputs" class="score-input-grid" aria-label="各分值人数"></div>
 
           <div class="rating-summary">
-            <span>BGM 评分 <strong id="editorScore">--</strong></span>
+            <span><span id="editorCustomLabel">???评分</span> <strong id="editorScore">--</strong></span>
             <span><strong id="editorVotes">0</strong> votes</span>
             <span>标准差 <strong id="editorStdDev">--</strong></span>
             <span>争议度 <strong id="editorControversy">--</strong></span>
             <span id="editorRank" hidden>Rank #--</span>
-          </div>
-        </section>
-
-        <section class="editor-section">
-          <h2>自定义评分</h2>
-          <div class="custom-rating-grid">
-            <label>
-              <span>评分名前缀</span>
-              <input id="customLabelInput" class="text-input" type="text" maxlength="12" placeholder="例如：豆瓣 / 科排 / VIB" autocomplete="off">
-              <small>留空时显示“???评分”</small>
-            </label>
-            <label>
-              <span>分数</span>
-              <input id="customScoreInput" class="text-input" type="number" min="0" max="10" step="0.001" placeholder="例如：8.579">
-              <small>评分卡中统一显示三位小数</small>
-            </label>
           </div>
         </section>
 
@@ -93,60 +84,62 @@
       <section class="preview-column" aria-label="评分卡预览">
         <div class="preview-heading">
           <h2>预览</h2>
-          <span>收藏盒样式</span>
+          <span>条目信息沿用旧卡；评分区按参考图调整</span>
         </div>
-        <div class="preview-frame dark-preview">
-          <main id="capture" class="rating-widget">
-            <header class="widget-header">
-              <h3>收藏盒</h3>
+        <div class="preview-frame">
+          <main id="capture">
+            <header id="headerSubject">
+              <h1 id="cardTitle">请先载入 Bangumi 条目</h1>
+              <div id="cardMeta" class="meta"></div>
             </header>
 
-            <nav class="collection-tabs" aria-label="收藏状态">
-              <span>想看</span>
-              <span class="is-active">看过</span>
-              <span>在看</span>
-              <span>搁置</span>
-              <span>抛弃</span>
-            </nav>
+            <div class="subject-columns">
+              <div class="cover-slot">
+                <img id="cardCover" alt="" hidden>
+                <div id="cardCoverPlaceholder" class="cover-placeholder">NO IMAGE</div>
+              </div>
 
-            <section class="score-panel">
-              <div id="globalRating" class="global_rating score1">
-                <div class="rateEmo"></div>
-                <div class="score-lines">
-                  <div class="score-line">
-                    <span id="customScoreLabel" class="score-label">???评分</span>
-                    <span id="customScoreValue" class="score-value">--</span>
-                    <span id="customScoreDescription" class="score-description"></span>
-                  </div>
-                  <div class="score-line">
-                    <span class="score-label">BGM评分</span>
-                    <span id="cardScore" class="score-value">--</span>
-                    <span id="cardDescription" class="score-description"></span>
-                  </div>
-                  <div id="cardRanking" class="card-ranking" hidden>
-                    Bangumi Anime Ranked:<span id="cardRankText" class="ranking-value">#--</span>
+              <section class="SidePanel">
+                <h2>收藏盒</h2>
+
+                <div id="globalRating" class="global_rating score1">
+                  <div class="rateEmo"></div>
+                  <div class="score-lines">
+                    <div class="score-line">
+                      <span id="cardCustomLabel" class="score-label">???评分</span>
+                      <span id="cardCustomScore" class="score-value">--</span>
+                      <span id="cardCustomDescription" class="score-description"></span>
+                    </div>
+                    <div class="score-line bgm-score-line">
+                      <span class="score-label">BGM评分</span>
+                      <span id="cardBgmScore" class="score-value bgm-score">--</span>
+                      <span id="cardBgmDescription" class="score-description"></span>
+                    </div>
+                    <div id="cardRanking" class="card-ranking" hidden>
+                      <small class="grey">Bangumi Anime Ranked:</small><small id="cardRankText" class="alarm">#--</small>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div id="ChartWarpper" class="chartWrapper">
-                <div class="chart_desc"><span id="cardVotes">0</span> votes</div>
-                <ul id="horizontalChart" class="horizontalChart"></ul>
-              </div>
+                <div id="ChartWarpper" class="chartWrapper">
+                  <div class="chart_desc"><small class="grey"><span id="cardVotes">0</span> votes</small></div>
+                  <ul id="horizontalChart" class="horizontalChart"></ul>
+                </div>
 
-              <div class="stats-line">
-                <span>标准差：<strong id="cardStdDev">--</strong></span>
-                <span>争议度：<strong id="cardControversy">--</strong></span>
-              </div>
-            </section>
+                <div class="stats-line">
+                  <span>标准差：<strong id="cardStdDev">--</strong></span>
+                  <span>争议度：<strong id="cardControversy">--</strong></span>
+                </div>
+              </section>
+            </div>
           </main>
         </div>
       </section>
     </main>
   </div>
 
-  <script src="logic.js?v=20260928-3"></script>
+  <script src="logic.js?v=20260928-4"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="script.js?v=20260928-3"></script>
+  <script src="script.js?v=20260928-4"></script>
 </body>
 </html>
