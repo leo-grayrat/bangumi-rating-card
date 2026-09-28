@@ -34,7 +34,7 @@ assert.equal(controversyLabel(1.15), '略有分歧');
 assert.equal(controversyLabel(1.30), '莫衷一是');
 assert.equal(controversyLabel(1.45), '各执一词');
 assert.equal(controversyLabel(1.60), '你死我活');
-assert.equal(controversyLabel(1.75), '厨大战黑');
+assert.equal(controversyLabel(1.75), '厨红黑大战');
 assert.equal(controversyLabel(null), '');
 
 console.log('logic tests passed');
