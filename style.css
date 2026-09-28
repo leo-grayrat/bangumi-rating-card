@@ -223,7 +223,8 @@ small.alarm { padding-left: 3px; color: #c00; font-weight: 700; }
 .horizontalChart .label { position: absolute; bottom: -24px; left: 0; display: block; width: 100%; height: 24px; color: #555; line-height: 24px; text-align: center; }
 
 .stats-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eee; color: #555; font-size: 13px; line-height: 1.2; }
-.stats-line strong { display: inline-block; font-size: 14px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; vertical-align: baseline; }
+.stats-line > span { display: inline-flex; align-items: baseline; gap: 4px; line-height: 1.2; }
+.stats-line strong { display: inline-block; font-size: inherit; line-height: inherit; font-weight: 700; font-variant-numeric: tabular-nums; vertical-align: baseline; }
 #cardControversy { color: #00a6b2; }
 
 @media (max-width: 1420px) {
