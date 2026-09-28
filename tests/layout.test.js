@@ -16,7 +16,9 @@ assert.doesNotMatch(css, /\.cover-slot img[^}]*min-height:/s);
 assert.match(css, /\.card-main\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*align-self:\s*stretch;/s);
 assert.doesNotMatch(html, /<h2>收藏盒<\/h2>/);
 assert.doesNotMatch(css, /\.SidePanel h2\s*\{/);
-assert.match(css, /\.stats-line\s*\{[^}]*align-items:\s*baseline;/s);
-assert.match(css, /\.stats-line strong\s*\{[^}]*font-size:\s*14px;[^}]*line-height:\s*1;[^}]*font-variant-numeric:\s*tabular-nums;/s);
+assert.match(css, /\.stats-line\s*\{[^}]*align-items:\s*baseline;[^}]*font-size:\s*13px;/s);
+assert.match(css, /\.stats-line > span\s*\{[^}]*display:\s*inline-flex;[^}]*align-items:\s*baseline;/s);
+assert.match(css, /\.stats-line strong\s*\{[^}]*font-size:\s*inherit;[^}]*line-height:\s*inherit;[^}]*font-variant-numeric:\s*tabular-nums;/s);
+assert.doesNotMatch(css, /\.stats-line strong\s*\{[^}]*font-size:\s*14px;/s);
 
 console.log('layout tests passed');
