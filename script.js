@@ -138,6 +138,10 @@
       renderSubject();
       renderRating();
       setStatus(el.loadStatus, `已载入 ${state.subject.title}`, 'success');
+
+      // 页面先用 Bangumi 原图直连，确保预览立即可见；
+      // 后台再尝试转成 data URL，成功后用于导出 PNG。
+      void upgradeCardCoverForExport(state.subject.id);
     } catch (error) {
       setStatus(el.loadStatus, error instanceof Error ? error.message : '载入失败。', 'error');
     } finally {
@@ -156,6 +160,29 @@
       bgmScore: officialRating.score,
       rank: Number(data.rating?.rank || 0) || null,
     };
+  }
+
+  async function upgradeCardCoverForExport(subjectId) {
+    try {
+      const response = await fetch(`${API_ROOT}/subjects/${subjectId}/image?type=large`);
+      if (!response.ok) return;
+      const blob = await response.blob();
+      if (!blob.type.startsWith('image/')) return;
+      const dataUrl = await blobToDataUrl(blob);
+      if (state.subject?.id !== subjectId || !dataUrl) return;
+      setCover(el.cardCover, el.cardCoverPlaceholder, dataUrl);
+    } catch (_) {
+      // 转换失败只影响导出优化，预览继续保留 Bangumi 原图。
+    }
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
   }
 
   function importBangumiRating() {
@@ -231,12 +258,7 @@
     setText(el.cardMeta, meta.join(' / '));
 
     setCover(el.editorCover, el.editorCoverPlaceholder, subject.cover);
-    setCover(
-      el.cardCover,
-      el.cardCoverPlaceholder,
-      Logic.corsImageUrl(subject.cover),
-      subject.cover,
-    );
+    setCover(el.cardCover, el.cardCoverPlaceholder, subject.cover);
     el.openSubjectLink.href = `https://bgm.tv/subject/${subject.id}`;
     el.openSubjectLink.classList.remove('disabled-link');
   }
@@ -293,34 +315,23 @@
     el.horizontalChart.append(fragment);
   }
 
-  function setCover(image, placeholder, src, fallbackSrc = '') {
+  function setCover(image, placeholder, src) {
     image.onload = null;
     image.onerror = null;
+    image.removeAttribute('crossorigin');
 
     if (!src) {
       image.removeAttribute('src');
-      image.removeAttribute('crossorigin');
       image.hidden = true;
       placeholder.hidden = false;
       return;
     }
-
-    let fallbackUsed = false;
-    const useCors = Boolean(fallbackSrc && fallbackSrc !== src);
-    if (useCors) image.crossOrigin = 'anonymous';
-    else image.removeAttribute('crossorigin');
 
     image.onload = () => {
       image.hidden = false;
       placeholder.hidden = true;
     };
     image.onerror = () => {
-      if (!fallbackUsed && fallbackSrc && fallbackSrc !== src) {
-        fallbackUsed = true;
-        image.removeAttribute('crossorigin');
-        image.src = fallbackSrc;
-        return;
-      }
       image.hidden = true;
       placeholder.hidden = false;
     };
