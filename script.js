@@ -9,7 +9,8 @@
     bangumiCounts: null,
     counts: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, 0])),
     showRank: false,
-    coverDataUrl: '',
+    customLabel: '',
+    customScore: null,
   };
 
   const el = {
@@ -30,20 +31,25 @@
     ratingModeText: document.querySelector('#ratingModeText'),
     editorScore: document.querySelector('#editorScore'),
     editorVotes: document.querySelector('#editorVotes'),
+    editorStdDev: document.querySelector('#editorStdDev'),
+    editorControversy: document.querySelector('#editorControversy'),
     editorRank: document.querySelector('#editorRank'),
+    customLabelInput: document.querySelector('#customLabelInput'),
+    customScoreInput: document.querySelector('#customScoreInput'),
     downloadBtn: document.querySelector('#downloadBtn'),
     openSubjectLink: document.querySelector('#openSubjectLink'),
     exportStatus: document.querySelector('#exportStatus'),
-    cardTitle: document.querySelector('#cardTitle'),
-    cardMeta: document.querySelector('#cardMeta'),
-    cardCover: document.querySelector('#cardCover'),
-    cardCoverPlaceholder: document.querySelector('#cardCoverPlaceholder'),
     globalRating: document.querySelector('#globalRating'),
+    customScoreLabel: document.querySelector('#customScoreLabel'),
+    customScoreValue: document.querySelector('#customScoreValue'),
+    customScoreDescription: document.querySelector('#customScoreDescription'),
     cardScore: document.querySelector('#cardScore'),
     cardDescription: document.querySelector('#cardDescription'),
     cardRanking: document.querySelector('#cardRanking'),
     cardRankText: document.querySelector('#cardRankText'),
     cardVotes: document.querySelector('#cardVotes'),
+    cardStdDev: document.querySelector('#cardStdDev'),
+    cardControversy: document.querySelector('#cardControversy'),
     horizontalChart: document.querySelector('#horizontalChart'),
     capture: document.querySelector('#capture'),
   };
@@ -59,7 +65,18 @@
   el.clearRatingBtn.addEventListener('click', clearRatingForManualEntry);
   el.showRankInput.addEventListener('change', () => {
     state.showRank = el.showRankInput.checked;
-    renderAll();
+    renderRating();
+  });
+  el.customLabelInput.addEventListener('input', () => {
+    state.customLabel = el.customLabelInput.value.trim();
+    renderCustomRating();
+  });
+  el.customScoreInput.addEventListener('input', () => {
+    const value = Number(el.customScoreInput.value);
+    state.customScore = el.customScoreInput.value === '' || !Number.isFinite(value)
+      ? null
+      : Math.max(0, Math.min(10, value));
+    renderCustomRating();
   });
   el.downloadBtn.addEventListener('click', downloadCard);
 
@@ -113,7 +130,6 @@
       state.bangumiCounts = Logic.normalizeCounts(data.rating?.count || {});
       state.counts = Logic.normalizeCounts({});
       state.showRank = false;
-      state.coverDataUrl = '';
 
       el.subjectInput.value = String(state.subject.id);
       el.importRatingBtn.disabled = !data.rating;
@@ -124,12 +140,6 @@
       renderSubject();
       renderRating();
       setStatus(el.loadStatus, `已载入 ${state.subject.title}`, 'success');
-
-      state.coverDataUrl = await fetchCoverAsDataUrl(state.subject.id);
-      if (state.coverDataUrl) {
-        state.subject.cover = state.coverDataUrl;
-        renderSubject();
-      }
     } catch (error) {
       setStatus(el.loadStatus, error instanceof Error ? error.message : '载入失败。', 'error');
     } finally {
@@ -146,27 +156,6 @@
       cover: data.images?.large || data.images?.common || data.images?.medium || data.images?.grid || '',
       rank: Number(data.rating?.rank || 0) || null,
     };
-  }
-
-  async function fetchCoverAsDataUrl(subjectId) {
-    try {
-      const response = await fetch(`${API_ROOT}/subjects/${subjectId}/image?type=large`);
-      if (!response.ok) return '';
-      const blob = await response.blob();
-      if (!blob.type.startsWith('image/')) return '';
-      return await blobToDataUrl(blob);
-    } catch (_) {
-      return '';
-    }
-  }
-
-  function blobToDataUrl(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result || ''));
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
   }
 
   function importBangumiRating() {
@@ -198,6 +187,7 @@
   function renderAll() {
     renderSubject();
     renderRating();
+    renderCustomRating();
   }
 
   function renderSubject() {
@@ -208,10 +198,7 @@
       setText(el.infoDate, '—');
       setText(el.infoEps, '—');
       setText(el.infoId, '—');
-      setText(el.cardTitle, '请先载入 Bangumi 条目');
-      setText(el.cardMeta, '');
       setCover(el.editorCover, el.editorCoverPlaceholder, '');
-      setCover(el.cardCover, el.cardCoverPlaceholder, '');
       el.openSubjectLink.classList.add('disabled-link');
       el.openSubjectLink.href = '#';
       return;
@@ -222,35 +209,27 @@
     setText(el.infoDate, subject.date || '—');
     setText(el.infoEps, subject.eps ? `${subject.eps} 话` : '—');
     setText(el.infoId, String(subject.id));
-    setText(el.cardTitle, subject.title);
-
-    const meta = [];
-    if (subject.date) meta.push(subject.date);
-    if (subject.eps) meta.push(`${subject.eps}话`);
-    meta.push(`ID ${subject.id}`);
-    setText(el.cardMeta, meta.join(' / '));
-
     setCover(el.editorCover, el.editorCoverPlaceholder, subject.cover);
-    setCover(
-      el.cardCover,
-      el.cardCoverPlaceholder,
-      Logic.corsImageUrl(subject.cover),
-      subject.cover,
-    );
     el.openSubjectLink.href = `https://bgm.tv/subject/${subject.id}`;
     el.openSubjectLink.classList.remove('disabled-link');
   }
 
   function renderRating() {
     const rating = Logic.calculateRating(state.counts);
-    const scoreText = rating.score == null ? '--' : rating.score.toFixed(1);
+    const scoreText = rating.score == null ? '--' : rating.score.toFixed(3);
+    const stdDevText = rating.stdDev == null ? '--' : rating.stdDev.toFixed(4);
     const description = Logic.scoreDescription(rating.score);
+    const controversy = rating.controversy || '--';
 
     setText(el.editorScore, scoreText);
     setText(el.editorVotes, String(rating.total));
+    setText(el.editorStdDev, stdDevText);
+    setText(el.editorControversy, controversy);
     setText(el.cardScore, scoreText);
     setText(el.cardDescription, description);
     setText(el.cardVotes, String(rating.total));
+    setText(el.cardStdDev, stdDevText);
+    setText(el.cardControversy, controversy);
 
     const scoreClass = Logic.scoreClass(rating.score);
     el.globalRating.className = `global_rating ${scoreClass}`;
@@ -281,41 +260,24 @@
     el.horizontalChart.append(fragment);
   }
 
-  function setCover(image, placeholder, src, fallbackSrc = '') {
-    image.onload = null;
-    image.onerror = null;
+  function renderCustomRating() {
+    const label = state.customLabel ? `${state.customLabel}评分` : '???评分';
+    const scoreText = state.customScore == null ? '--' : state.customScore.toFixed(3);
+    setText(el.customScoreLabel, label);
+    setText(el.customScoreValue, scoreText);
+    setText(el.customScoreDescription, Logic.scoreDescription(state.customScore));
+  }
 
-    if (!src) {
-      image.removeAttribute('src');
-      image.removeAttribute('crossorigin');
-      image.hidden = true;
-      placeholder.hidden = false;
-      return;
-    }
-
-    let fallbackUsed = false;
-    const useCors = Boolean(fallbackSrc && fallbackSrc !== src);
-    if (useCors) image.crossOrigin = 'anonymous';
-    else image.removeAttribute('crossorigin');
-
-    image.onload = () => {
+  function setCover(image, placeholder, src) {
+    if (src) {
+      image.src = src;
       image.hidden = false;
       placeholder.hidden = true;
-    };
-    image.onerror = () => {
-      if (!fallbackUsed && fallbackSrc && fallbackSrc !== src) {
-        fallbackUsed = true;
-        image.removeAttribute('crossorigin');
-        image.src = fallbackSrc;
-        return;
-      }
+    } else {
+      image.removeAttribute('src');
       image.hidden = true;
       placeholder.hidden = false;
-    };
-
-    image.src = src;
-    image.hidden = false;
-    placeholder.hidden = true;
+    }
   }
 
   function setText(node, value) {
