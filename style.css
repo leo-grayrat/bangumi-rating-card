@@ -107,8 +107,7 @@ button { cursor: pointer; }
 #headerSubject { padding-bottom: 10px; border-bottom: 1px solid #eee; }
 #headerSubject h1 { margin: 0; color: #3e3e3e; font-size: 24px; line-height: 1.35; }
 #headerSubject .meta { margin-top: 6px; color: #999; font-size: 12px; }
-.SidePanel { width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; padding-top: 14px; }
-.SidePanel h2 { margin: 0 0 13px; padding-bottom: 5px; border-bottom: 1px solid #eee; color: #444; font-size: 18px; }
+.SidePanel { width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; padding-top: 12px; }
 
 .global_rating { min-height: 70px; display: flex; align-items: flex-start; }
 .global_rating .rateEmo { flex: 0 0 auto; width: 30px; height: 37px; margin: 1px 8px 5px 0; background: transparent url('https://wsrv.nl/?url=https%3A%2F%2Fbgm.tv%2Fimg%2Fbangumi%2Frate_emo.gif') no-repeat; }
