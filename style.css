@@ -9,12 +9,12 @@ body {
 button, input { font: inherit; }
 button { cursor: pointer; }
 
-.page-shell { width: min(1240px, calc(100% - 32px)); margin: 26px auto 48px; }
+.page-shell { width: min(1320px, calc(100% - 32px)); margin: 26px auto 48px; }
 .tool-header { margin-bottom: 18px; padding: 0 4px 14px; border-bottom: 1px solid #ddd; }
 .tool-header h1 { margin: 0; color: #444; font-size: 24px; font-weight: 400; }
 .tool-header p { margin: 4px 0 0; color: #999; }
 
-.workspace { display: grid; grid-template-columns: minmax(500px, 520px) minmax(620px, 1fr); gap: 26px; align-items: start; }
+.workspace { display: grid; grid-template-columns: minmax(590px, 610px) minmax(460px, 1fr); gap: 28px; align-items: start; }
 .editor-column, .preview-column { min-width: 0; }
 .editor-section { margin-bottom: 16px; padding: 16px 18px 18px; border: 1px solid #ddd; border-radius: 4px; background: #fff; }
 .editor-section h2, .preview-heading h2 { margin: 0; color: #555; font-size: 16px; font-weight: 700; }
@@ -26,7 +26,8 @@ button { cursor: pointer; }
 
 .subject-loader { display: flex; gap: 8px; }
 .text-input {
-  height: 30px;
+  width: 100%;
+  height: 31px;
   padding: 4px 8px;
   border: 1px solid #bbb;
   border-radius: 3px;
@@ -67,14 +68,14 @@ button { cursor: pointer; }
 .rating-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 13px; }
 .rank-toggle { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: #777; font-size: 12px; user-select: none; }
 .rank-toggle input { accent-color: #e800a4; }
-.score-input-grid { display: grid; grid-template-columns: repeat(5, minmax(82px, 1fr)); gap: 8px; }
-.score-input-item { display: grid; grid-template-columns: 22px minmax(60px, 1fr); align-items: center; gap: 5px; min-width: 0; }
+.score-input-grid { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); gap: 9px; }
+.score-input-item { display: grid; grid-template-columns: 22px minmax(72px, 1fr); align-items: center; gap: 5px; min-width: 0; }
 .score-input-item label { color: #777; font-weight: 700; text-align: right; }
 .score-count-input {
   width: 100%;
-  min-width: 60px;
-  height: 30px;
-  padding: 3px 5px;
+  min-width: 72px;
+  height: 31px;
+  padding: 3px 6px;
   border: 1px solid #ccc;
   border-radius: 2px;
   outline: none;
@@ -84,7 +85,12 @@ button { cursor: pointer; }
 }
 .rating-summary { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; color: #888; font-size: 12px; }
 .rating-summary strong { color: #e800a4; font-size: 14px; }
+#editorControversy { color: #00a8b0; }
 #editorRank { color: #c00; }
+
+.custom-rating-grid { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 14px; }
+.custom-rating-grid label { display: grid; gap: 5px; color: #666; }
+.custom-rating-grid small { color: #999; font-size: 11px; }
 .output-actions { display: flex; align-items: center; gap: 13px; }
 .text-link { color: #e800a4; text-decoration: none; }
 .text-link:hover { text-decoration: underline; }
@@ -92,46 +98,85 @@ button { cursor: pointer; }
 
 .preview-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 0 3px 8px; }
 .preview-heading span { color: #aaa; font-size: 12px; }
-.preview-frame { width: 100%; overflow-x: auto; padding: 0; border: 1px solid #ddd; border-radius: 4px; background: #ededed; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.preview-frame { width: 100%; overflow-x: auto; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.preview-frame.dark-preview { padding: 18px; background: #1d1e22; }
 
-/* 以下评分卡样式直接迁自旧仓库 bangumi_subject.html，仅把精灵图改为 Bangumi 自身资源路径。 */
-#capture { width: 620px; padding: 22px 24px 26px; background: #fff; color: #000; font: 12px/1.5 Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
-#headerSubject { padding-bottom: 10px; border-bottom: 1px solid #eee; }
-#headerSubject h1 { margin: 0; color: #3e3e3e; font-size: 22px; line-height: 1.35; }
-#headerSubject .meta { margin-top: 5px; color: #999; }
-.subject-columns { display: grid; grid-template-columns: 168px 1fr; gap: 28px; align-items: start; padding-top: 18px; }
-.cover-slot { width: 168px; }
-.cover-slot img, .cover-placeholder { display: block; width: 150px; height: 212px; object-fit: cover; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,.18); }
-.cover-placeholder { border: 1px solid #ddd; background: #f5f5f5; color: #aaa; line-height: 212px; text-align: center; }
-.SidePanel { width: 100%; padding-top: 1px; }
-.SidePanel h2 { margin: 0 0 13px; padding-bottom: 5px; border-bottom: 1px solid #eee; color: #444; font-size: 17px; }
-.global_rating { min-height: 47px; display: flex; align-items: flex-start; }
-.global_rating .rateEmo { flex: 0 0 auto; width: 30px; height: 37px; margin: 0 8px 5px 0; background: transparent url('https://bgm.tv/img/bangumi/rate_emo.gif') no-repeat; }
+#capture.rating-widget {
+  width: 440px;
+  overflow: hidden;
+  border: 1px solid #484848;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #343434 0%, #222326 58%, #292a2f 100%);
+  color: #f1f1f1;
+  font: 12px/1.4 Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 12px 26px rgba(0,0,0,.25);
+}
+.widget-header { padding: 16px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.widget-header h3 { margin: 0; color: #fff; font-size: 17px; font-weight: 500; }
+.collection-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 9px 14px 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 25px;
+  background: #666;
+}
+.collection-tabs span {
+  padding: 10px 0;
+  border-right: 1px solid rgba(0,0,0,.25);
+  background: linear-gradient(#787878, #646464);
+  color: #eee;
+  font-size: 16px;
+  text-align: center;
+}
+.collection-tabs span:last-child { border-right: 0; }
+.collection-tabs .is-active { background: linear-gradient(#818181, #696969); color: #fff; text-shadow: 0 1px rgba(0,0,0,.35); }
+
+.score-panel { margin: 0 14px 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.14); }
+.global_rating { display: flex; align-items: flex-start; gap: 8px; min-height: 72px; }
+.global_rating .rateEmo {
+  flex: 0 0 auto;
+  width: 37px;
+  height: 37px;
+  margin-top: 1px;
+  background: transparent url('https://wsrv.nl/?url=https%3A%2F%2Fbgm.tv%2Fimg%2Fbangumi%2Frate_emo.gif') no-repeat;
+}
 .score1 .rateEmo, .score2 .rateEmo { background-position: 0 0; }
 .score3 .rateEmo, .score4 .rateEmo { background-position: -38px 0; }
 .score5 .rateEmo, .score6 .rateEmo { background-position: -77px 0; }
 .score7 .rateEmo, .score8 .rateEmo { background-position: -115px 0; }
 .score9 .rateEmo, .score10 .rateEmo { background-position: -153px 0; }
-.global_score { padding-top: 1px; color: #666; }
-.global_score .number { color: #e800a4; font-size: 25px; font-weight: 700; line-height: 1; }
-.global_score .description { padding-left: 7px; color: #777; font-size: 13px; }
-.global_score .ranking { margin-top: 7px; line-height: 1; }
-small.grey { color: #999; }
-small.alarm { padding-left: 3px; color: #c00; font-weight: 700; }
-.chartWrapper { position: relative; width: 320px; margin-top: 13px; background-color: #fbfbfb; text-align: center; }
-.chartWrapper .chart_desc { position: absolute; z-index: 3; top: 0; right: 0; padding: 0 5px; background: rgba(255,255,255,.86); }
-.horizontalChart { display: flex; width: 240px; height: 120px; margin: 0 auto; padding: 0; overflow: hidden; list-style: none; font-size: 12px; }
-.horizontalChart li { position: relative; width: 18px; height: 96px; margin: 0 3px; border-bottom: 2px solid #eee; }
-.horizontalChart .count { position: absolute; bottom: 0; left: 0; display: block; width: 100%; overflow: hidden; border-radius: 2px 2px 0 0; background: #aaa; color: transparent; }
-.horizontalChart .label { position: absolute; bottom: -24px; left: 0; display: block; width: 100%; height: 24px; color: #555; line-height: 24px; text-align: center; }
+.score-lines { flex: 1; min-width: 0; }
+.score-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; line-height: 1.2; }
+.score-line + .score-line { margin-top: 3px; }
+.score-label { color: #f2f2f2; font-size: 15px; }
+.score-value { color: #ff00a8; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.score-description { color: #f0f0f0; font-size: 14px; }
+.card-ranking { margin-top: 7px; color: #b8b8b8; font-size: 12px; }
+.ranking-value { margin-left: 2px; color: #ffae00; font-weight: 700; }
 
-@media (max-width: 1180px) {
+.chartWrapper { position: relative; width: 100%; margin-top: 5px; padding: 9px 12px 0; background: rgba(0,0,0,.08); }
+.chart_desc { position: absolute; top: 0; right: 0; z-index: 2; padding: 5px 8px; background: rgba(230,230,230,.92); color: #777; font-size: 12px; }
+.horizontalChart { display: flex; width: 286px; height: 120px; margin: 0 auto; padding: 0; overflow: hidden; list-style: none; font-size: 12px; }
+.horizontalChart li { position: relative; width: 20px; height: 96px; margin: 0 4px; border-bottom: 2px solid rgba(255,255,255,.08); }
+.horizontalChart .count { position: absolute; bottom: 0; left: 0; display: block; width: 100%; overflow: hidden; border-radius: 2px 2px 0 0; background: #bdbdbd; color: transparent; }
+.horizontalChart .label { position: absolute; bottom: -23px; left: 0; display: block; width: 100%; height: 23px; color: #fff; line-height: 23px; text-align: center; }
+
+.stats-line { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 16px; padding: 11px 0 1px; border-top: 1px solid rgba(255,255,255,.12); color: #fff; font-size: 15px; }
+.stats-line strong { font-size: 15px; font-weight: 700; }
+#cardStdDev { color: #fff; }
+#cardControversy { color: #00f2ff; }
+
+@media (max-width: 1220px) {
   .workspace { grid-template-columns: 1fr; }
   .preview-column { order: 2; }
 }
-@media (max-width: 560px) {
-  .page-shell { width: min(100% - 18px, 1240px); margin-top: 12px; }
+@media (max-width: 660px) {
+  .page-shell { width: min(100% - 18px, 1320px); margin-top: 12px; }
   .subject-loader { flex-direction: column; }
-  .score-input-grid { grid-template-columns: repeat(2, minmax(100px, 1fr)); }
+  .score-input-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
   .rank-toggle { width: 100%; margin-left: 0; }
+  .custom-rating-grid { grid-template-columns: 1fr; }
+  .preview-frame.dark-preview { padding: 10px; }
 }
